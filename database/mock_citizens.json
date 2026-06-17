@@ -1,0 +1,74 @@
+{
+  "1234567890": {
+    "nid": "1234567890",
+    "full_name": "Ram Bahadur Thapa",
+    "dob": "1985-04-12",
+    "gender": "M",
+    "address": "Baneshwor-10, Kathmandu",
+    "phone": "9841000001",
+    "status": "active"
+  },
+  "0987654321": {
+    "nid": "0987654321",
+    "full_name": "Sita Kumari Sharma",
+    "dob": "1990-08-25",
+    "gender": "F",
+    "address": "Lalitpur-3, Patan",
+    "phone": "9841000002",
+    "status": "active"
+  },
+  "1122334455": {
+    "nid": "1122334455",
+    "full_name": "Hari Prasad Adhikari",
+    "dob": "1975-01-30",
+    "gender": "M",
+    "address": "Bhaktapur-4",
+    "phone": "9841000003",
+    "status": "active"
+  },
+  "5544332211": {
+    "nid": "5544332211",
+    "full_name": "Gita Devi Poudel",
+    "dob": "1988-11-15",
+    "gender": "F",
+    "address": "Chitwan-5, Bharatpur",
+    "phone": "9841000004",
+    "status": "active"
+  },
+  "9988776655": {
+    "nid": "9988776655",
+    "full_name": "Krishna Kumar Bhandari",
+    "dob": "1970-06-20",
+    "gender": "M",
+    "address": "Pokhara-6",
+    "phone": "9841000005",
+    "status": "active"
+  },
+  "1111111111": {
+    "nid": "1111111111",
+    "full_name": "Rajesh Hamal",
+    "dob": "1982-03-05",
+    "gender": "M",
+    "address": "Kalanki-15, Kathmandu",
+    "phone": "9841000006",
+    "status": "active"
+  },
+  "2222222222": {
+    "nid": "2222222222",
+    "full_name": "Anita Karki",
+    "dob": "1993-07-18",
+    "gender": "F",
+    "address": "Boudha-6, Kathmandu",
+    "phone": "9841000007",
+    "status": "active"
+  },
+  "3333333333": {
+    "nid": "3333333333",
+    "full_name": "Dipak Raj Joshi",
+    "dob": "1968-12-22",
+    "gender": "M",
+    "address": "Bhairahawa-3, Rupandehi",
+    "phone": "9841000008",
+    "status": "active"
+  }
+}
