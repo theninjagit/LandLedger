@@ -7,7 +7,7 @@
 
 <div align="center">
 
-<img src="images/icons" width="100%" alt="LandLedger Banner">
+<img src="images/banner.png" width="100%" alt="LandLedger Banner">
 
 # LandLedger
 
@@ -61,7 +61,7 @@ A secure web application that uses **Public Key Infrastructure (PKI)** to make l
   <img src="https://img.shields.io/badge/Local-Development-yellow?style=for-the-badge">
   <img src="https://img.shields.io/badge/CA-Auto_Generated-blue?style=for-the-badge">
   <img src="https://img.shields.io/badge/Project-Active-brightgreen?style=for-the-badge">
-  <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge">
+  
 </p>
 
 ## Security Foundation
