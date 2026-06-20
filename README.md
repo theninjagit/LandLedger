@@ -5,6 +5,65 @@
 
 ## Quick Start
 
+<div align="center">
+
+<img src="images/icons" width="100%" alt="LandLedger Banner">
+
+# LandLedger
+
+### PKI-Based Land Ownership Transfer System
+
+A secure web application that uses **Public Key Infrastructure (PKI)** to make land ownership transfers verifiable, tamper-proof, and digitally signed.
+
+<br>
+
+<img src="https://img.shields.io/badge/Python-Flask-blue">
+<img src="https://img.shields.io/badge/Cryptography-RSA%202048-green">
+<img src="https://img.shields.io/badge/Database-SQLite-orange">
+<img src="https://img.shields.io/badge/Security-PKI-red">
+
+</div>
+
+---
+
+## Core Features
+
+- Seller, Buyer, and Government Officer registration
+- NID / PAN verification
+- X.509 certificate generation
+- Digital signature for land transfer
+- Ownership transfer approval system
+- SHA-256 ledger hash chain
+- Audit log for every action
+
+---
+
+## Tech Stack
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/Flask-3.0-black">
+<img src="https://img.shields.io/badge/Python-3.x-blue">
+<img src="https://img.shields.io/badge/SQLite-Database-lightgrey">
+<img src="https://img.shields.io/badge/RSA-2048-red">
+<img src="https://img.shields.io/badge/SHA--256-Ledger-green">
+
+</div>
+
+---
+
+## How LandLedger Works
+
+```mermaid
+flowchart LR
+    A[Seller Login] --> B[Create Transfer Request]
+    B --> C[Seller Digital Signature]
+    C --> D[Buyer Approval & Signature]
+    D --> E[Certificate Verification]
+    E --> F[Government Officer Approval]
+    F --> G[Ownership Updated]
+    G --> H[Hash Stored in Ledger]
+
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
@@ -86,11 +145,3 @@ landledger/
 ```
 
 ---
-
-## Teacher Notes (Keycloak + MinIO Integration)
-
-Your teacher suggested:
-- **Keycloak** → Replace auth_bp with Keycloak OIDC for identity management
-- **MinIO** → Replace SQLite file storage with MinIO for encrypted deed documents
-
-These are production-grade additions. The PKI/crypto core remains identical.
