@@ -1,5 +1,3 @@
-# 🏛️ LandLedger
-### PKI-Based Land Ownership & Property Transfer Verification
 
 ---
 
@@ -75,7 +73,6 @@ A secure web application that uses **Public Key Infrastructure (PKI)** to make l
 </p>
 
 ---
----
 
 ## What is LandLedger?
 LandLedger demonstrates a complete digital land ownership verification and property transfer path:
@@ -104,12 +101,12 @@ LandLedger demonstrates a complete digital land ownership verification and prope
 
 ## How LandLedger Works
 
-#Flowchart
 Flowchart
 <div align="center">
 <img src="images/workflow.png" width="100%" alt="LandLedger Banner">
 </div> 
 
+## Installation & Setup
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
@@ -125,32 +122,32 @@ http://127.0.0.1:5000
 
 ## Demo Walkthrough
 
-### Step 1 — Register 3 accounts:
+### Step 1 - Register 3 accounts:
 | Role | Email (example) | Password |
 |------|----------------|----------|
 | Land Owner (Seller) | seller@demo.com | test123 |
 | Buyer | buyer@demo.com | test123 |
 | Govt Officer | officer@demo.com | test123 |
 
-### Step 2 — As Seller:
+### Step 2 - As Seller:
 - Login → Dashboard → **Add Property**
 - Fill in property details → SHA-256 hash is generated
 
-### Step 3 — As Seller:
+### Step 3 - As Seller:
 - Dashboard → **Transfer Property**
 - Select property, enter buyer@demo.com
 - System signs deed hash with seller's RSA key
 
-### Step 4 — As Buyer:
+### Step 4 - As Buyer:
 - Login → Dashboard → **Sign Deed**
 - Buyer counter-signs with their RSA key
 
-### Step 5 — As Govt Officer:
+### Step 5 - As Govt Officer:
 - Login → Dashboard → **Verify & Approve**
 - System verifies ALL signatures + X.509 certs
 - Block is added to immutable ledger
 
-### Step 6 — Verify:
+### Step 6 - Verify:
 - Go to /verify → paste deed hash → all green ✅
 
 ---
