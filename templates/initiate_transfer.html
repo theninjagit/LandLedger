@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Initiate Transfer{% endblock %}
+{% block content %}
+<div class="ll-page-md" style="padding-top:28px;padding-bottom:28px">
+  <div class="flex items-center gap-12 mb-24">
+    <a href="/dashboard" class="ll-btn ll-btn-outline ll-btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <div><div class="ll-sh-title">Initiate Property Transfer</div><div class="ll-sh-sub">Digitally sign and send a property deed to a buyer</div></div>
+  </div>
+
+  <!-- PROCESS STEPS -->
+  <div class="ll-card mb-20">
+    <div class="ll-card-body">
+      <div class="text-xs fw-700 text-muted mb-12" style="text-transform:uppercase;letter-spacing:.6px">Transfer Process</div>
+      <div class="ll-steps">
+        <div class="ll-step">
+          <div class="ll-step-dot active">1</div>
+          <div class="ll-step-text active">Create Deed</div>
+        </div>
+        <div class="ll-step-line"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot pending">2</div>
+          <div class="ll-step-text">Seller Signs</div>
+        </div>
+        <div class="ll-step-line"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot pending">3</div>
+          <div class="ll-step-text">Buyer Signs</div>
+        </div>
+        <div class="ll-step-line"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot pending">4</div>
+          <div class="ll-step-text">Govt Reviews</div>
+        </div>
+        <div class="ll-step-line"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot pending">5</div>
+          <div class="ll-step-text">Govt Approves</div>
+        </div>
+        <div class="ll-step-line"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot pending">6</div>
+          <div class="ll-step-text">On Ledger</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if properties %}
+  <div class="ll-warn-box">
+    <i class="fas fa-triangle-exclamation" style="flex-shrink:0;margin-top:2px"></i>
+    <div>Initiating a transfer will <b>digitally sign the deed hash using your RSA-2048 private key</b>. The property will be locked to "in transfer" status until the transfer is approved or rejected.</div>
+  </div>
+  <div class="ll-card">
+    <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-file-signature" style="color:var(--accent)"></i> Transfer Details</div></div>
+    <div class="ll-card-body">
+      <form method="POST" onsubmit="return confirm('Sign and initiate this property transfer?\n\nYour RSA private key will sign the deed hash.')">
+        <div class="ll-form-group">
+          <label class="ll-label">Select Property to Transfer <span style="color:var(--danger)">*</span></label>
+          <select name="property_id" class="ll-select" required>
+            <option value="">— Choose a property —</option>
+            {% for p in properties %}
+            <option value="{{ p.id }}">{{ p.property_number }} — {{ p.location }}, {{ p.district }} ({{ p.area_sqft }} sqft)</option>
+            {% endfor %}
+          </select>
+          <div class="ll-input-hint">Only active properties are listed</div>
+        </div>
+        <div class="ll-form-group">
+          <label class="ll-label">Buyer's Email Address <span style="color:var(--danger)">*</span></label>
+          <div class="ll-input-group">
+            <i class="fas fa-envelope ll-input-icon"></i>
+            <input type="email" name="buyer_email" class="ll-input" placeholder="buyer@email.com" required>
+          </div>
+          <div class="ll-input-hint">The buyer must be registered in LandLedger with the 'Buyer' role</div>
+        </div>
+
+        <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px;margin-bottom:20px">
+          <div class="fw-600 text-sm mb-12">What happens cryptographically:</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            {% for step in ['Deed document created (JSON with property + parties + timestamp)','SHA-256 hash of deed is computed','Your RSA-2048 private key signs the deed hash','Buyer is notified to counter-sign','Govt Officer then verifies both signatures + certificates'] %}
+            <div class="flex items-center gap-8 text-sm text-gray">
+              <i class="fas fa-arrow-right" style="color:var(--accent);font-size:.7rem;flex-shrink:0"></i> {{ step }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <button type="submit" class="ll-btn ll-btn-primary ll-btn-block ll-btn-lg">
+          <i class="fas fa-signature"></i> Sign &amp; Initiate Transfer
+        </button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <div class="ll-card">
+    <div class="ll-empty" style="padding:60px">
+      <div class="ll-empty-icon">🏠</div>
+      <h4>No active properties</h4>
+      <p class="text-sm">You need at least one active property to initiate a transfer.</p>
+      <a href="/property/add" class="ll-btn ll-btn-primary mt-16">Add a Property</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Transfer Detail{% endblock %}
+{% block content %}
+<div class="ll-page-md" style="padding-top:28px;padding-bottom:28px">
+  <div class="flex items-center gap-12 mb-24">
+    <a href="/dashboard" class="ll-btn ll-btn-outline ll-btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <div>
+      <div class="ll-sh-title">Transfer Detail #{{ transfer.id }}</div>
+      <div class="ll-sh-sub">{{ transfer.property_number }} — {{ transfer.location }}</div>
+    </div>
+    <div style="margin-left:auto">
+      <span class="ll-badge {% if transfer.status=='approved' %}bd-success{% elif transfer.status=='rejected' %}bd-danger{% elif transfer.status=='pending_govt' %}bd-purple{% elif transfer.status=='pending_buyer' %}bd-warning{% else %}bd-gray{% endif %}" style="font-size:.85rem;padding:6px 14px">
+        {{ transfer.status.replace('_',' ').title() }}
+      </span>
+    </div>
+  </div>
+
+  <!-- STEP TRACKER -->
+  <div class="ll-card mb-20">
+    <div class="ll-card-body">
+      <div class="ll-steps">
+        {% set s = transfer.status %}
+        <div class="ll-step">
+          <div class="ll-step-dot done"><i class="fas fa-check"></i></div>
+          <div class="ll-step-text done">Created</div>
+        </div>
+        <div class="ll-step-line done"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot {{ 'done' if transfer.seller_signature else 'active' }}">
+            {% if transfer.seller_signature %}<i class="fas fa-check"></i>{% else %}2{% endif %}
+          </div>
+          <div class="ll-step-text {{ 'done' if transfer.seller_signature else 'active' }}">Seller Signed</div>
+        </div>
+        <div class="ll-step-line {{ 'done' if transfer.buyer_signature else '' }}"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot {{ 'done' if transfer.buyer_signature else ('active' if s=='pending_buyer' else 'pending') }}">
+            {% if transfer.buyer_signature %}<i class="fas fa-check"></i>{% else %}3{% endif %}
+          </div>
+          <div class="ll-step-text {{ 'done' if transfer.buyer_signature else ('active' if s=='pending_buyer' else '') }}">Buyer Signed</div>
+        </div>
+        <div class="ll-step-line {{ 'done' if s in ['approved','rejected'] else '' }}"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot {{ 'done' if s in ['approved','rejected'] else ('active' if s=='pending_govt' else 'pending') }}">
+            {% if s in ['approved','rejected'] %}<i class="fas fa-check"></i>{% else %}4{% endif %}
+          </div>
+          <div class="ll-step-text {{ 'done' if s in ['approved','rejected'] else ('active' if s=='pending_govt' else '') }}">Govt Review</div>
+        </div>
+        <div class="ll-step-line {{ 'done' if s=='approved' else '' }}"></div>
+        <div class="ll-step">
+          <div class="ll-step-dot {{ 'done' if s=='approved' else 'pending' }}">
+            {% if s=='approved' %}<i class="fas fa-check"></i>{% else %}5{% endif %}
+          </div>
+          <div class="ll-step-text {{ 'done' if s=='approved' else '' }}">On Ledger</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2 gap-20">
+    <div>
+      <div class="ll-card mb-16">
+        <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-house" style="color:var(--accent)"></i> Property Info</div></div>
+        <div class="ll-card-body" style="padding:0">
+          {% for label,value in [('Property #',transfer.property_number),('Location',transfer.location+', '+transfer.district),('Area',transfer.area_sqft|string+' sqft'),('Seller',transfer.seller_name),('Buyer',transfer.buyer_name)] %}
+          <div style="padding:10px 18px;border-bottom:1px solid var(--gray-100);display:flex">
+            <div style="width:100px;font-size:.76rem;font-weight:700;color:var(--gray-400);flex-shrink:0;text-transform:uppercase;margin-top:2px">{{ label }}</div>
+            <div class="fw-600 text-sm">{{ value }}</div>
+          </div>
+          {% endfor %}
+          {% if transfer.rejection_reason %}
+          <div style="padding:10px 18px;background:#fff1f2">
+            <div style="font-size:.76rem;font-weight:700;color:var(--danger);margin-bottom:4px">REJECTION REASON</div>
+            <div class="text-sm" style="color:var(--danger)">{{ transfer.rejection_reason }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ll-card">
+        <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-file-code" style="color:var(--gray-500)"></i> Deed Document (JSON)</div></div>
+        <pre style="margin:0;padding:14px;background:var(--gray-900);color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.72rem;max-height:220px;overflow-y:auto;line-height:1.7">{{ deed_data | tojson(indent=2) }}</pre>
+      </div>
+    </div>
+
+    <div>
+      <div class="ll-card mb-16">
+        <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-signature" style="color:var(--accent)"></i> Signature Status</div></div>
+        <div class="ll-card-body">
+          {% for label,signed,ts in [('Seller Signature',transfer.seller_signature,transfer.seller_signed_at),('Buyer Signature',transfer.buyer_signature,transfer.buyer_signed_at),('Govt Approval',transfer.status=='approved',transfer.approved_at)] %}
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-100)">
+            <span style="font-size:1.3rem">{% if signed %}✅{% else %}⏳{% endif %}</span>
+            <div>
+              <div class="fw-600 text-sm">{{ label }}</div>
+              {% if ts %}<div class="text-xs text-muted">{{ ts }}</div>{% else %}<div class="text-xs text-muted">Pending...</div>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="ll-card mb-16">
+        <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-hashtag" style="color:var(--purple)"></i> Cryptographic Hashes</div></div>
+        <div class="ll-card-body">
+          <div class="text-xs fw-700 text-muted mb-6">DEED HASH (SHA-256)</div>
+          <div class="ll-hash" style="display:block;margin-bottom:12px">{{ transfer.deed_hash }}</div>
+          {% if ledger_entry %}
+          <div class="text-xs fw-700 text-muted mb-6">BLOCK HASH</div>
+          <div class="ll-hash green" style="display:block;margin-bottom:12px">{{ ledger_entry.block_hash }}</div>
+          <div class="text-xs fw-700 text-muted mb-6">PREVIOUS BLOCK HASH</div>
+          <div class="ll-hash purple" style="display:block">{{ ledger_entry.previous_hash }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if ledger_entry %}
+      <div class="ll-card" style="border:2px solid #a7f3d0">
+        <div class="ll-card-body text-center">
+          <div style="font-size:2.5rem;margin-bottom:8px">⛓️</div>
+          <div class="fw-800" style="font-size:1.1rem;color:var(--success)">Block #{{ ledger_entry.block_index }}</div>
+          <div class="text-xs text-muted mt-4">Recorded on immutable ledger</div>
+          <div class="text-xs text-muted">{{ ledger_entry.timestamp }}</div>
+          <a href="/verify" class="ll-btn ll-btn-outline ll-btn-sm mt-12">Verify This Deed</a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

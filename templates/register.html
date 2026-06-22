@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block title %}Register — LandLedger{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 64px);background:linear-gradient(135deg,#f8fafc,#eff6ff);padding:32px 16px;display:flex;justify-content:center">
+  <div style="width:100%;max-width:680px">
+
+    <div class="text-center mb-20">
+      <div style="font-size:2.5rem;margin-bottom:8px">🔐</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--gray-900)">Create Account</h2>
+      <p class="text-gray text-sm mt-4">ID verified → Account created → X.509 certificate issued</p>
+    </div>
+
+    <div class="ll-card mb-16">
+      <div class="ll-card-body" style="padding:24px">
+        <form method="POST" enctype="multipart/form-data">
+
+          <!-- Personal info -->
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400);margin-bottom:12px">Personal information</div>
+          <div class="ll-row-2">
+            <div class="ll-form-group">
+              <label class="ll-label">Full Name <span style="color:var(--danger)">*</span></label>
+              <div class="ll-input-group">
+                <i class="fas fa-user ll-input-icon"></i>
+                <input type="text" name="full_name" class="ll-input" placeholder="As on your ID card" required id="nameInput">
+              </div>
+            </div>
+            <div class="ll-form-group">
+              <label class="ll-label">Mobile Number <span style="color:var(--danger)">*</span></label>
+              <div class="ll-input-group">
+                <i class="fas fa-phone ll-input-icon"></i>
+                <input type="tel" name="phone" class="ll-input" placeholder="98XXXXXXXX" required id="mobileInput">
+              </div>
+              <div class="ll-input-hint">Must match the number on your ID record</div>
+            </div>
+          </div>
+          <div class="ll-row-2">
+            <div class="ll-form-group">
+              <label class="ll-label">Email Address <span style="color:var(--danger)">*</span></label>
+              <div class="ll-input-group">
+                <i class="fas fa-envelope ll-input-icon"></i>
+                <input type="email" name="email" class="ll-input" placeholder="you@email.com" required>
+              </div>
+            </div>
+            <div class="ll-form-group">
+              <label class="ll-label">Password <span style="color:var(--danger)">*</span></label>
+              <div class="ll-input-group">
+                <i class="fas fa-lock ll-input-icon"></i>
+                <input type="password" name="password" class="ll-input" placeholder="Min 6 characters" minlength="6" required>
+              </div>
+            </div>
+          </div>
+          <div class="ll-form-group">
+            <label class="ll-label">Role <span style="color:var(--danger)">*</span></label>
+            <select name="role" class="ll-select" required id="roleSelect">
+              <option value="">— Choose your role —</option>
+              <option value="seller">🏠 Seller — Register and transfer properties</option>
+              <option value="buyer">👤 Buyer — Receive property transfers</option>
+              <option value="govt_officer">🏛️ Government Officer — Approve transfers</option>
+            </select>
+            <div class="ll-input-hint">Note: After buying a property, any user can transfer it again — no need to re-register.</div>
+          </div>
+
+          <!-- ID Section -->
+          <div id="nid-section">
+            <div style="height:1px;background:var(--gray-100);margin:18px 0"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400)">Identity Verification</span>
+              <span class="ll-badge bd-warning">Required</span>
+            </div>
+            <div class="ll-form-group">
+              <label class="ll-label">Select ID Type <span style="color:var(--danger)">*</span></label>
+              <select name="id_type" class="ll-select" id="idTypeSelect">
+                <option value="">— Choose ID type —</option>
+                <option value="nid">🪪 National Identity Card (NID)</option>
+                <option value="pan">📄 PAN Card</option>
+              </select>
+            </div>
+
+            <div id="nid-fields" style="display:none">
+              <div class="ll-row-2">
+                <div class="ll-form-group">
+                  <label class="ll-label">NID Number <span style="color:var(--danger)">*</span></label>
+                  <div class="ll-input-group">
+                    <i class="fas fa-id-card ll-input-icon"></i>
+                    <input type="text" name="id_number" class="ll-input" placeholder="10-digit NID number" id="nidInput">
+                  </div>
+                </div>
+                <div class="ll-form-group">
+                  <label class="ll-label">Date of Birth <span style="color:var(--danger)">*</span></label>
+                  <div class="ll-input-group">
+                    <i class="fas fa-calendar ll-input-icon"></i>
+                    <input type="date" name="id_dob" class="ll-input" id="nidDobInput">
+                  </div>
+                  <div class="ll-input-hint">Must match your NID record</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="pan-fields" style="display:none">
+              <div class="ll-info-box mb-12" style="background:#f5f3ff;border-color:#ddd6fe;color:#6b21a8">
+                <i class="fas fa-circle-info" style="flex-shrink:0;margin-top:2px"></i>
+                <div>For PAN Card, your <b>mobile number is your unique identifier</b>. No separate PAN number needed — just enter your name and mobile number above and they will be matched against the PAN database.</div>
+              </div>
+            </div>
+
+            <div id="photo-section" style="display:none">
+              <div class="ll-form-group">
+                <label class="ll-label">Upload ID Card Photo <span style="color:var(--danger)">*</span></label>
+                <input type="file" name="id_photo" class="ll-input" accept=".jpg,.jpeg,.png" style="padding:8px" id="photoInput">
+                <div class="ll-input-hint">Front side of your ID card — JPG or PNG</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="govt-note" style="display:none" class="ll-info-box mt-12">
+            <i class="fas fa-landmark" style="flex-shrink:0"></i>
+            <div>Government Officers are verified through internal channels. ID upload not required.</div>
+          </div>
+
+          <button type="submit" class="ll-btn ll-btn-success ll-btn-block ll-btn-lg mt-20">
+            <i class="fas fa-id-card"></i> Verify ID &amp; Create Account
+          </button>
+        </form>
+        <div style="text-align:center;margin-top:14px;font-size:.85rem;color:var(--gray-500)">
+          Already registered? <a href="/login" style="color:var(--accent);font-weight:600;text-decoration:none">Sign in</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOCK DATABASE HINT TABLES -->
+    {% if mock %}
+    <div class="ll-card">
+      <div class="ll-card-header">
+        <div class="ll-card-title" style="color:var(--purple)"><i class="fas fa-database"></i> Pre-registered Citizens (click any row to auto-fill)</div>
+      </div>
+      <div class="ll-card-body" style="padding:0">
+        <!-- NID TABLE -->
+        <div style="padding:12px 16px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--gray-400);letter-spacing:.5px">🪪 NID Database</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">NID Number</th>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">Full Name</th>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">DOB</th>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">Mobile</th>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">Address</th>
+            </tr></thead>
+            <tbody>
+              {% for nid,info in mock.nid.items() %}
+              <tr onclick="fillForm('nid','{{ nid }}','{{ info.full_name }}','{{ info.mobile }}','{{ info.dob }}')"
+                  style="cursor:pointer;border-bottom:1px solid var(--gray-100);transition:background .15s"
+                  onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background=''">
+                <td style="padding:9px 14px;font-family:monospace;font-size:.82rem;font-weight:600;color:var(--accent)">{{ nid }}</td>
+                <td style="padding:9px 14px;font-size:.84rem;font-weight:600">{{ info.full_name }}</td>
+                <td style="padding:9px 14px;font-size:.78rem;color:var(--gray-500);font-family:monospace">{{ info.dob }}</td>
+                <td style="padding:9px 14px;font-size:.82rem;color:var(--gray-600)">{{ info.mobile }}</td>
+                <td style="padding:9px 14px;font-size:.78rem;color:var(--gray-400)">{{ info.address }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAN TABLE -->
+        <div style="padding:12px 16px;background:var(--gray-50);border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--gray-400);letter-spacing:.5px">📄 PAN Database — Phone number IS your PAN ID</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">Phone (= PAN ID)</th>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">Full Name</th>
+              <th style="padding:8px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--gray-400);border-bottom:1px solid var(--gray-200)">Address</th>
+            </tr></thead>
+            <tbody>
+              {% for pan,info in mock.pan.items() %}
+              <tr onclick="fillForm('pan','','{{ info.full_name }}','{{ pan }}')"
+                  style="cursor:pointer;border-bottom:1px solid var(--gray-100);transition:background .15s"
+                  onmouseover="this.style.background='#faf5ff'" onmouseout="this.style.background=''">
+                <td style="padding:9px 14px;font-family:monospace;font-size:.82rem;font-weight:600;color:var(--purple)">{{ pan }}</td>
+                <td style="padding:9px 14px;font-size:.84rem;font-weight:600">{{ info.full_name }}</td>
+                <td style="padding:9px 14px;font-size:.78rem;color:var(--gray-400)">{{ info.address }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+const roleSelect   = document.getElementById('roleSelect');
+const idTypeSelect = document.getElementById('idTypeSelect');
+const nidSection   = document.getElementById('nid-section');
+const govtNote     = document.getElementById('govt-note');
+const nidFields    = document.getElementById('nid-fields');
+const panFields    = document.getElementById('pan-fields');
+const photoSection = document.getElementById('photo-section');
+
+roleSelect.addEventListener('change', function() {
+  const isGovt = this.value === 'govt_officer';
+  nidSection.style.display = isGovt ? 'none' : 'block';
+  govtNote.style.display   = isGovt ? 'block' : 'none';
+});
+
+idTypeSelect.addEventListener('change', function() {
+  const isNid = this.value === 'nid';
+  const isPan = this.value === 'pan';
+  nidFields.style.display    = isNid ? 'block' : 'none';
+  panFields.style.display    = isPan ? 'block' : 'none';
+  photoSection.style.display = this.value ? 'block' : 'none';
+  const ni = document.getElementById('nidInput');
+  const nd = document.getElementById('nidDobInput');
+  if (ni) ni.required = isNid;
+  if (nd) nd.required = isNid;
+});
+
+function fillForm(idType, idNumber, name, mobile, dob) {
+  // 1. Set role to seller if not already set (so NID section shows)
+  if (!roleSelect.value || roleSelect.value === 'govt_officer') {
+    roleSelect.value = 'seller';
+    roleSelect.dispatchEvent(new Event('change'));
+  }
+
+  // 2. Set ID type and trigger show/hide of fields
+  idTypeSelect.value = idType;
+  idTypeSelect.dispatchEvent(new Event('change'));
+
+  // 3. Fill name and mobile (top fields)
+  document.getElementById('nameInput').value   = name;
+  document.getElementById('mobileInput').value = mobile;
+
+  // 4. For NID: fill NID number and DOB
+  if (idType === 'nid') {
+    const ni = document.getElementById('nidInput');
+    const nd = document.getElementById('nidDobInput');
+    if (ni) ni.value = idNumber;
+    if (nd && dob) nd.value = dob;
+  }
+  // For PAN: mobile is the key — already filled above, nothing else needed
+
+  // 5. Scroll to TOP of form so user sees the filled fields
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  document.querySelector('form').scrollIntoView({top: 0, behavior: 'smooth', block: 'start'});
+
+  // 6. Flash a highlight on the filled fields so user notices
+  ['nameInput','mobileInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.borderColor = '#2563eb';
+      el.style.background  = '#eff6ff';
+      setTimeout(() => {
+        el.style.borderColor = '';
+        el.style.background  = '';
+      }, 2000);
+    }
+  });
+}
+</script>
+{% endblock %}

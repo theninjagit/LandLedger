@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Add Property{% endblock %}
+{% block content %}
+<div class="ll-page-md" style="padding-top:28px;padding-bottom:28px">
+  <div class="flex items-center gap-12 mb-24">
+    <a href="/dashboard" class="ll-btn ll-btn-outline ll-btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <div><div class="ll-sh-title">Register Property</div><div class="ll-sh-sub">Add a new land record with cryptographic fingerprint</div></div>
+  </div>
+  <div class="ll-info-box">
+    <i class="fas fa-circle-info" style="flex-shrink:0;margin-top:2px"></i>
+    <div>A <b>SHA-256 hash</b> of your property details (property number + location + district + area + your user ID) will be computed and stored as an immutable fingerprint. Any future change will produce a different hash, proving tampering.</div>
+  </div>
+  <div class="ll-card">
+    <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-house-chimney" style="color:var(--accent)"></i> Property Details</div></div>
+    <div class="ll-card-body">
+      <form method="POST">
+        <div class="ll-row-2">
+          <div class="ll-form-group">
+            <label class="ll-label">Property / Land Number <span style="color:var(--danger)">*</span></label>
+            <input type="text" name="property_number" class="ll-input" placeholder="e.g. KTM-2024-001" required>
+            <div class="ll-input-hint">Official land registration number</div>
+          </div>
+          <div class="ll-form-group">
+            <label class="ll-label">District <span style="color:var(--danger)">*</span></label>
+            <select name="district" class="ll-select" required>
+              <option value="">— Select District —</option>
+              {% for d in ['Kathmandu','Lalitpur','Bhaktapur','Chitwan','Pokhara','Butwal','Biratnagar','Birgunj','Dharan','Nepalgunj','Dang','Rupandehi','Morang','Sunsari','Banke'] %}
+              <option>{{ d }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="ll-form-group">
+          <label class="ll-label">Full Location / Address <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="location" class="ll-input" placeholder="e.g. Baneshwor-10, Kathmandu" required>
+        </div>
+        <div class="ll-row-2">
+          <div class="ll-form-group">
+            <label class="ll-label">Area (sq. feet) <span style="color:var(--danger)">*</span></label>
+            <input type="number" name="area_sqft" class="ll-input" placeholder="e.g. 1200" min="1" step="0.01" required>
+          </div>
+          <div class="ll-form-group">
+            <label class="ll-label">Description (optional)</label>
+            <input type="text" name="description" class="ll-input" placeholder="Land type, landmarks...">
+          </div>
+        </div>
+        <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px;margin-bottom:20px">
+          <div class="flex items-center gap-8 mb-8">
+            <i class="fas fa-hashtag" style="color:var(--accent)"></i>
+            <span class="fw-600 text-sm">SHA-256 Hash will be computed from:</span>
+          </div>
+          <code style="font-size:.78rem;color:var(--gray-600)">SHA256( property_number + location + district + area_sqft + owner_id )</code>
+        </div>
+        <button type="submit" class="ll-btn ll-btn-success ll-btn-block ll-btn-lg">
+          <i class="fas fa-plus"></i> Register Property &amp; Generate Hash
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

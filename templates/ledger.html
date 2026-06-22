@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Immutable Ledger{% endblock %}
+{% block content %}
+<div class="ll-page" style="padding-top:28px;padding-bottom:28px">
+  <div class="ll-sh mb-8">
+    <div>
+      <div class="ll-sh-title">⛓️ Immutable Ledger</div>
+      <div class="ll-sh-sub">SHA-256 hash-chained blockchain of all approved property transfers</div>
+    </div>
+    <div>
+      {% if chain_valid %}
+      <span class="ll-badge bd-success" style="font-size:.85rem;padding:7px 16px"><i class="fas fa-link"></i> Chain Integrity: VALID</span>
+      {% else %}
+      <span class="ll-badge bd-danger" style="font-size:.85rem;padding:7px 16px"><i class="fas fa-link-slash"></i> Chain BROKEN!</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if blocks %}
+  <div class="ll-info-box mb-20">
+    <i class="fas fa-circle-info" style="flex-shrink:0;margin-top:2px"></i>
+    <div>Each block contains the SHA-256 hash of the previous block. Changing any block invalidates all subsequent blocks, making tampering cryptographically detectable. Genesis previous hash = <code>{{ '0'*16 }}...</code></div>
+  </div>
+
+  <!-- Genesis block indicator -->
+  <div style="background:var(--gray-800);color:#86efac;border-radius:var(--radius);padding:10px 16px;margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:.75rem;display:flex;align-items:center;gap:10px">
+    <span>⬆ GENESIS</span>
+    <span style="opacity:.6">previous_hash: {{ '0'*32 }}{{ '0'*32 }}</span>
+  </div>
+  <div style="text-align:center;font-size:1.3rem;color:var(--accent);margin:4px 0;opacity:.5">↓</div>
+
+  {% for block in blocks %}
+  <div class="ll-block mb-4 fade-in">
+    <div class="ll-block-num">Block #{{ block.block_index }}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">
+      <div>
+        <div class="fw-700">{{ block.property_number }} — {{ block.location }}</div>
+        <div class="text-sm text-gray mt-4">
+          <i class="fas fa-right-from-bracket" style="color:var(--danger)"></i> {{ block.seller_name }}
+          &nbsp;→&nbsp;
+          <i class="fas fa-right-to-bracket" style="color:var(--success)"></i> {{ block.buyer_name }}
+        </div>
+        <div class="text-xs text-muted mt-8">{{ block.timestamp }}</div>
+      </div>
+      <div>
+        <div class="text-xs fw-700 text-muted mb-4">DEED HASH</div>
+        <div class="ll-hash" style="font-size:.68rem;display:block;margin-bottom:6px">{{ block.deed_hash }}</div>
+        <div class="text-xs fw-700 text-muted mb-4">PREV HASH</div>
+        <div class="ll-hash purple" style="font-size:.68rem;display:block;margin-bottom:6px">{{ block.previous_hash }}</div>
+        <div class="text-xs fw-700 text-muted mb-4">BLOCK HASH</div>
+        <div class="ll-hash green" style="font-size:.68rem;display:block">{{ block.block_hash }}</div>
+      </div>
+    </div>
+  </div>
+  {% if not loop.last %}
+  <div style="text-align:center;font-size:1.2rem;color:var(--accent);margin:4px 0;opacity:.5">↓</div>
+  {% endif %}
+  {% endfor %}
+
+  {% else %}
+  <div class="ll-card">
+    <div class="ll-empty" style="padding:64px">
+      <div class="ll-empty-icon">⛓️</div>
+      <h4>Ledger is empty</h4>
+      <p class="text-sm">No approved transfers yet. Complete a full transfer flow to add the first block.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

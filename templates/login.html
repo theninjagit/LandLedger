@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f8fafc,#eff6ff);padding:32px">
+  <div style="width:100%;max-width:440px">
+    <div class="text-center mb-24">
+      <div style="font-size:2.8rem;margin-bottom:8px">🏛️</div>
+      <h2 style="font-size:1.6rem;font-weight:800;color:var(--gray-900)">Welcome back</h2>
+      <p class="text-gray text-sm mt-4">Sign in to your LandLedger account</p>
+    </div>
+    <div class="ll-card">
+      <div class="ll-card-body" style="padding:28px">
+        <form method="POST" id="loginForm">
+          <div class="ll-form-group">
+            <label class="ll-label">Email Address</label>
+            <div class="ll-input-group">
+              <i class="fas fa-envelope ll-input-icon"></i>
+              <input type="email" name="email" class="ll-input" placeholder="you@email.com" required autocomplete="email">
+            </div>
+          </div>
+          <div class="ll-form-group">
+            <label class="ll-label">Password</label>
+            <div class="ll-input-group">
+              <i class="fas fa-lock ll-input-icon"></i>
+              <input type="password" name="password" class="ll-input" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+          </div>
+          <button type="submit" class="ll-btn ll-btn-primary ll-btn-block ll-btn-lg mt-20">
+            <i class="fas fa-right-to-bracket"></i> Sign In
+          </button>
+        </form>
+        <div style="text-align:center;margin-top:20px;font-size:.85rem;color:var(--gray-500)">
+          Don't have an account? <a href="/register" style="color:var(--accent);font-weight:600;text-decoration:none">Register here</a>
+        </div>
+      </div>
+    </div>
+    <div class="ll-info-box mt-16" style="font-size:.8rem">
+      <i class="fas fa-circle-info" style="flex-shrink:0;margin-top:2px"></i>
+      <div>Authentication is handled securely. Your session is tied to your PKI certificate identity.</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

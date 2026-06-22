@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block title %}Govt Officer Dashboard{% endblock %}
+{% block content %}
+<div class="ll-layout">
+  <aside class="ll-sidebar">
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Main</div>
+      <a href="/dashboard" class="ll-sidebar-link active"><span class="si">🏛️</span> Dashboard</a>
+      <a href="/audit"     class="ll-sidebar-link"><span class="si">📋</span> Audit Logs</a>
+    </div>
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Tools</div>
+      <a href="/certificate" class="ll-sidebar-link"><span class="si">📜</span> My Certificate</a>
+      <a href="/verify"      class="ll-sidebar-link"><span class="si">🛡️</span> Verify Deed</a>
+      <a href="/ledger"      class="ll-sidebar-link"><span class="si">⛓️</span> Ledger</a>
+    </div>
+  </aside>
+
+  <main class="ll-main fade-in">
+    <div class="ll-page">
+      <div class="ll-sh mb-24">
+        <div>
+          <div class="ll-sh-title">Government Officer Dashboard</div>
+          <div class="ll-sh-sub">Welcome, {{ session.user_name }} — Official Approver</div>
+        </div>
+        <div class="flex gap-8">
+          <a href="/audit"  class="ll-btn ll-btn-outline ll-btn-sm"><i class="fas fa-clipboard-list"></i> Audit Logs</a>
+          <a href="/ledger" class="ll-btn ll-btn-primary  ll-btn-sm"><i class="fas fa-cubes"></i> Ledger</a>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="grid-3 mb-24">
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#fee2e2"><span style="font-size:1.3rem">🔔</span></div>
+          <div><div class="ll-stat-num" style="color:var(--danger)">{{ pending|length }}</div><div class="ll-stat-label">Pending Approval</div></div>
+        </div>
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#f0fdf4"><span style="font-size:1.3rem">✅</span></div>
+          <div><div class="ll-stat-num">{{ all_transfers|selectattr('status','equalto','approved')|list|length }}</div><div class="ll-stat-label">Approved</div></div>
+        </div>
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#f5f3ff"><span style="font-size:1.3rem">⛓️</span></div>
+          <div><div class="ll-stat-num">{{ all_transfers|length }}</div><div class="ll-stat-label">Total Transfers</div></div>
+        </div>
+      </div>
+
+      {% if pending %}
+      <div class="ll-card mb-24" style="border:2px solid #fecaca">
+        <div class="ll-card-header" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff">
+          <div class="ll-card-title" style="color:#fff"><i class="fas fa-gavel"></i> Pending Approval — Full Verification Required</div>
+          <span style="background:rgba(255,255,255,.22);color:#fff;border-radius:50px;padding:3px 12px;font-size:.75rem;font-weight:700">{{ pending|length }} to review</span>
+        </div>
+
+        {% for t in pending %}
+        <div style="padding:22px;border-bottom:1px solid var(--gray-100)">
+
+          <!-- Property header -->
+          <div class="flex justify-between items-center mb-16">
+            <div>
+              <div class="fw-800" style="font-size:1rem">{{ t.property_number }}</div>
+              <div class="text-sm text-gray">{{ t.location }}, {{ t.district }} — {{ t.area_sqft }} sqft</div>
+            </div>
+            <span class="ll-badge bd-purple">Pending Govt Review</span>
+          </div>
+
+          <!-- VERIFICATION CHECKLIST -->
+          <div style="background:var(--gray-50);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+            <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:12px">
+              Verification Checklist — Officer must confirm all before approving
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+              <!-- NID Check: Seller -->
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid {% if t.seller_nid_verified %}#a7f3d0;background:#f0fdf4{% else %}#fecaca;background:#fff1f2{% endif %}">
+                <span style="font-size:1.2rem">{% if t.seller_nid_verified %}✅{% else %}❌{% endif %}</span>
+                <div>
+                  <div class="fw-600 text-sm">Seller NID Verified</div>
+                  <div class="text-xs text-muted">{{ t.seller_name }}</div>
+                  <div class="text-xs" style="font-family:monospace;color:var(--accent)">{{ t.seller_nid[:4] }}****{{ t.seller_nid[-2:] if t.seller_nid|length > 6 else '' }}</div>
+                </div>
+              </div>
+
+              <!-- NID Check: Buyer -->
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid {% if t.buyer_nid_verified %}#a7f3d0;background:#f0fdf4{% else %}#fecaca;background:#fff1f2{% endif %}">
+                <span style="font-size:1.2rem">{% if t.buyer_nid_verified %}✅{% else %}❌{% endif %}</span>
+                <div>
+                  <div class="fw-600 text-sm">Buyer NID Verified</div>
+                  <div class="text-xs text-muted">{{ t.buyer_name }}</div>
+                  <div class="text-xs" style="font-family:monospace;color:var(--accent)">{{ t.buyer_nid[:4] }}****{{ t.buyer_nid[-2:] if t.buyer_nid|length > 6 else '' }}</div>
+                </div>
+              </div>
+
+              <!-- Cert checks (these are verified by system on approve click) -->
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid #bfdbfe;background:#eff6ff">
+                <span style="font-size:1.2rem">🔄</span>
+                <div>
+                  <div class="fw-600 text-sm">Seller X.509 Certificate</div>
+                  <div class="text-xs text-muted">Verified by system on approve</div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid #bfdbfe;background:#eff6ff">
+                <span style="font-size:1.2rem">🔄</span>
+                <div>
+                  <div class="fw-600 text-sm">Buyer X.509 Certificate</div>
+                  <div class="text-xs text-muted">Verified by system on approve</div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid #bfdbfe;background:#eff6ff">
+                <span style="font-size:1.2rem">🔄</span>
+                <div>
+                  <div class="fw-600 text-sm">Seller RSA Signature</div>
+                  <div class="text-xs text-muted">SHA-256 + RSA-2048 verified</div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid #bfdbfe;background:#eff6ff">
+                <span style="font-size:1.2rem">🔄</span>
+                <div>
+                  <div class="fw-600 text-sm">Buyer RSA Signature</div>
+                  <div class="text-xs text-muted">SHA-256 + RSA-2048 verified</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Deed hash -->
+            <div class="mt-12">
+              <div class="text-xs fw-700 text-muted mb-4">DEED HASH (SHA-256)</div>
+              <div class="ll-hash">{{ t.deed_hash }}</div>
+            </div>
+
+            <!-- What happens on approve -->
+            <div style="margin-top:12px;font-size:.76rem;color:var(--gray-400);display:flex;gap:6px;align-items:flex-start">
+              <i class="fas fa-info-circle" style="flex-shrink:0;margin-top:2px"></i>
+              Clicking "Verify &amp; Approve" runs all 6 checks automatically. If any check fails, the transfer is NOT approved and you see which check failed.
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-8 justify-between items-center">
+            <a href="/transfer/{{ t.id }}/detail" class="ll-btn ll-btn-outline ll-btn-sm">
+              <i class="fas fa-eye"></i> Full Details
+            </a>
+            <div class="flex gap-8">
+              <button class="ll-btn ll-btn-danger ll-btn-sm" onclick="openReject({{ t.id }})">
+                <i class="fas fa-times"></i> Reject
+              </button>
+              <form method="POST" action="/transfer/{{ t.id }}/approve"
+                    onsubmit="return confirm('Run all 6 verification checks and approve?\n\n1. Seller NID verified\n2. Buyer NID verified\n3. Seller X.509 cert valid\n4. Buyer X.509 cert valid\n5. Seller RSA signature valid\n6. Buyer RSA signature valid\n\nA new block will be added to the immutable ledger.')">
+                <button type="submit" class="ll-btn ll-btn-success">
+                  <i class="fas fa-shield-halved"></i> Run All Checks &amp; Approve
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reject Modal -->
+        <div class="ll-modal-backdrop" id="reject-{{ t.id }}">
+          <div class="ll-modal">
+            <div class="ll-modal-header">
+              <div class="ll-modal-title">Reject Transfer — {{ t.property_number }}</div>
+              <button class="ll-modal-close" onclick="closeReject({{ t.id }})">✕</button>
+            </div>
+            <form method="POST" action="/transfer/{{ t.id }}/reject">
+              <div class="ll-modal-body">
+                <div class="ll-warn-box"><i class="fas fa-triangle-exclamation" style="flex-shrink:0"></i><div>This will reject the transfer and return property to active status.</div></div>
+                <div class="ll-form-group">
+                  <label class="ll-label">Reason for Rejection</label>
+                  <textarea name="reason" class="ll-textarea" rows="3" placeholder="Enter official reason..." required style="resize:vertical"></textarea>
+                </div>
+              </div>
+              <div class="ll-modal-footer">
+                <button type="button" class="ll-btn ll-btn-outline" onclick="closeReject({{ t.id }})">Cancel</button>
+                <button type="submit" class="ll-btn ll-btn-danger">Confirm Rejection</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="ll-success-box mb-24">
+        <i class="fas fa-circle-check" style="flex-shrink:0;margin-top:2px"></i>
+        <div><b>All clear!</b> No transfers pending approval.</div>
+      </div>
+      {% endif %}
+
+      <!-- Recent transfers table -->
+      <div class="ll-card">
+        <div class="ll-card-header">
+          <div class="ll-card-title"><i class="fas fa-history" style="color:var(--accent)"></i> Recent Transfers</div>
+        </div>
+        <div class="ll-table-wrap">
+          <table class="ll-table">
+            <thead><tr><th>#</th><th>Property</th><th>Seller</th><th>Buyer</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {% for t in all_transfers %}
+              <tr>
+                <td class="text-xs text-muted">{{ t.id }}</td>
+                <td class="fw-600">{{ t.property_number }}</td>
+                <td class="text-sm">{{ t.seller_name }}</td>
+                <td class="text-sm">{{ t.buyer_name }}</td>
+                <td><span class="ll-badge {% if t.status=='approved' %}bd-success{% elif t.status=='rejected' %}bd-danger{% elif t.status=='pending_govt' %}bd-purple{% elif t.status=='pending_buyer' %}bd-warning{% else %}bd-gray{% endif %}">{{ t.status.replace('_',' ') }}</span></td>
+                <td><a href="/transfer/{{ t.id }}/detail" class="ll-btn ll-btn-ghost ll-btn-sm">Details →</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function openReject(id)  { document.getElementById('reject-'+id).classList.add('open'); }
+function closeReject(id) { document.getElementById('reject-'+id).classList.remove('open'); }
+</script>
+{% endblock %}

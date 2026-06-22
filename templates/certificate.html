@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}My X.509 Certificate{% endblock %}
+{% block content %}
+<div class="ll-page-md" style="padding-top:28px;padding-bottom:28px">
+  <div class="flex items-center gap-12 mb-24">
+    <a href="/dashboard" class="ll-btn ll-btn-outline ll-btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <div>
+      <div class="ll-sh-title">My X.509 Certificate</div>
+      <div class="ll-sh-sub">Issued by LandLedger CA — RSA-2048</div>
+    </div>
+    <div style="margin-left:auto">
+      {% if valid %}
+      <span class="ll-badge bd-success" style="font-size:.85rem;padding:6px 14px"><i class="fas fa-circle-check"></i> Valid &amp; Verified</span>
+      {% else %}
+      <span class="ll-badge bd-danger" style="font-size:.85rem;padding:6px 14px"><i class="fas fa-circle-xmark"></i> {{ msg }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="grid-2 gap-20">
+    <div>
+      <div class="ll-card mb-16">
+        <div class="ll-card-header" style="background:linear-gradient(135deg,#0f2942,#1d4ed8);color:#fff">
+          <div class="ll-card-title" style="color:#fff"><i class="fas fa-id-card"></i> Certificate Details</div>
+        </div>
+        <div class="ll-card-body" style="padding:0">
+          {% for label,value in [
+            ('Full Name', user.full_name),
+            ('Email', user.email),
+            ('Role', user.role.replace('_',' ').title()),
+            ('Algorithm', 'RSA-2048 + SHA-256'),
+            ('Issuer', 'LandLedger CA'),
+            ('Country', 'NP'),
+          ] %}
+          <div style="padding:11px 18px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center">
+            <div style="width:110px;font-size:.78rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">{{ label }}</div>
+            <div class="fw-600 text-sm">{{ value }}</div>
+          </div>
+          {% endfor %}
+          <div style="padding:11px 18px;border-bottom:1px solid var(--gray-100);display:flex;align-items:start">
+            <div style="width:110px;font-size:.78rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;margin-top:4px">Serial No.</div>
+            <div class="ll-hash" style="font-size:.68rem">{{ user.cert_serial }}</div>
+          </div>
+          <div style="padding:11px 18px;display:flex;align-items:center">
+            <div style="width:110px;font-size:.78rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;flex-shrink:0">CA Status</div>
+            {% if valid %}<span style="color:var(--success);font-weight:700;font-size:.85rem"><i class="fas fa-circle-check"></i> {{ msg }}</span>
+            {% else %}<span style="color:var(--danger);font-weight:700;font-size:.85rem"><i class="fas fa-circle-xmark"></i> {{ msg }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="ll-card">
+        <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-building-columns" style="color:var(--purple)"></i> LandLedger CA Info</div></div>
+        <div class="ll-card-body" style="padding:0">
+          {% for label,value in [
+            ('CA Name', ca_info.common_name),
+            ('Organization', ca_info.organization),
+            ('Valid From', ca_info.valid_from),
+            ('Valid Until', ca_info.valid_until),
+          ] %}
+          <div style="padding:10px 18px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center">
+            <div style="width:110px;font-size:.78rem;font-weight:700;color:var(--gray-400);flex-shrink:0">{{ label }}</div>
+            <div class="fw-600 text-sm">{{ value }}</div>
+          </div>
+          {% endfor %}
+          <div style="padding:10px 18px;display:flex;align-items:start">
+            <div style="width:110px;font-size:.78rem;font-weight:700;color:var(--gray-400);flex-shrink:0;margin-top:3px">CA Serial</div>
+            <div class="ll-hash" style="font-size:.68rem">{{ ca_info.serial_number[:24] }}...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="ll-card mb-16">
+        <div class="ll-card-header">
+          <div class="ll-card-title"><i class="fas fa-key" style="color:var(--gold)"></i> Your Certificate (PEM)</div>
+          <button class="ll-btn ll-btn-outline ll-btn-sm" onclick="copyText('cert-pem', this)"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+        <pre id="cert-pem" class="ll-cert-box" style="border-radius:0;margin:0">{{ user.cert_pem }}</pre>
+      </div>
+      <div class="ll-card mb-16">
+        <div class="ll-card-header">
+          <div class="ll-card-title"><i class="fas fa-lock-open" style="color:var(--accent)"></i> Your Public Key (PEM)</div>
+          <button class="ll-btn ll-btn-outline ll-btn-sm" onclick="copyText('pub-key', this)"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+        <pre id="pub-key" class="ll-cert-box" style="border-radius:0;margin:0;color:#93c5fd">{{ user.public_key_pem }}</pre>
+      </div>
+      <div class="ll-card">
+        <div class="ll-card-header">
+          <div class="ll-card-title"><i class="fas fa-shield-halved" style="color:var(--danger)"></i> CA Root Certificate</div>
+          <button class="ll-btn ll-btn-outline ll-btn-sm" onclick="copyText('ca-cert', this)"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+        <pre id="ca-cert" class="ll-cert-box" style="border-radius:0;margin:0;color:#fca5a5">{{ ca_info.cert_pem }}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function copyText(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).innerText);
+  btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+  setTimeout(()=>{ btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2000);
+}
+</script>
+{% endblock %}

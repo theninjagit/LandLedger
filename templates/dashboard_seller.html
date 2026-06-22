@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}Seller Dashboard{% endblock %}
+{% block content %}
+<div class="ll-layout">
+  <!-- SIDEBAR -->
+  <aside class="ll-sidebar">
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Main</div>
+      <a href="/dashboard" class="ll-sidebar-link active"><span class="si">🏠</span> Dashboard</a>
+      <a href="/property/add" class="ll-sidebar-link"><span class="si">➕</span> Add Property</a>
+      <a href="/transfer/initiate" class="ll-sidebar-link"><span class="si">🔄</span> Transfer Property</a>
+    </div>
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Security</div>
+      <a href="/certificate" class="ll-sidebar-link"><span class="si">📜</span> My Certificate</a>
+      <a href="/verify" class="ll-sidebar-link"><span class="si">🛡️</span> Verify Deed</a>
+    </div>
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Records</div>
+      <a href="/ledger" class="ll-sidebar-link"><span class="si">⛓️</span> Ledger</a>
+    </div>
+  </aside>
+
+  <main class="ll-main fade-in">
+    <div class="ll-page">
+      <div class="ll-sh mb-24">
+        <div>
+          <div class="ll-sh-title">Seller Dashboard</div>
+          <div class="ll-sh-sub">Welcome back, {{ session.user_name }} 👋</div>
+        </div>
+        <div class="flex gap-8">
+          <a href="/property/add" class="ll-btn ll-btn-outline ll-btn-sm"><i class="fas fa-plus"></i> Add Property</a>
+          <a href="/transfer/initiate" class="ll-btn ll-btn-primary ll-btn-sm"><i class="fas fa-arrows-rotate"></i> Transfer</a>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="grid-4 mb-24">
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#eff6ff"><span style="font-size:1.4rem">🏠</span></div>
+          <div>
+            <div class="ll-stat-num">{{ properties|length }}</div>
+            <div class="ll-stat-label">My Properties</div>
+          </div>
+        </div>
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#fef9c3"><span style="font-size:1.4rem">⏳</span></div>
+          <div>
+            <div class="ll-stat-num">{{ transfers|selectattr('status','equalto','pending_buyer')|list|length }}</div>
+            <div class="ll-stat-label">Awaiting Buyer</div>
+          </div>
+        </div>
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#f0fdf4"><span style="font-size:1.4rem">✅</span></div>
+          <div>
+            <div class="ll-stat-num">{{ transfers|selectattr('status','equalto','approved')|list|length }}</div>
+            <div class="ll-stat-label">Completed</div>
+          </div>
+        </div>
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#f5f3ff"><span style="font-size:1.4rem">🔐</span></div>
+          <div>
+            <div class="ll-stat-num" style="font-size:1rem;margin-top:4px">Active</div>
+            <div class="ll-stat-label">PKI Certificate</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2 gap-20">
+        <!-- PROPERTIES -->
+        <div class="ll-card">
+          <div class="ll-card-header">
+            <div class="ll-card-title"><i class="fas fa-house" style="color:var(--accent)"></i> My Properties</div>
+            <a href="/property/add" class="ll-btn ll-btn-primary ll-btn-sm"><i class="fas fa-plus"></i> Add</a>
+          </div>
+          {% if properties %}
+          <div>
+            {% for p in properties %}
+            <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100)">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="fw-700" style="font-size:.92rem">{{ p.property_number }}</div>
+                  <div class="text-sm text-gray mt-4">{{ p.location }}, {{ p.district }}</div>
+                  <div class="text-xs text-muted mt-4">{{ p.area_sqft }} sqft</div>
+                </div>
+                <div style="text-align:right">
+                  <span class="ll-badge {% if p.status=='active' %}bd-success{% elif p.status=='in_transfer' %}bd-warning{% else %}bd-gray{% endif %}">
+                    {{ p.status.replace('_',' ') }}
+                  </span>
+                </div>
+              </div>
+              <div class="ll-hash mt-8">{{ p.property_hash }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="ll-empty">
+            <div class="ll-empty-icon">🏠</div>
+            <h4>No properties yet</h4>
+            <p class="text-sm"><a href="/property/add" style="color:var(--accent)">Add your first property</a></p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- TRANSFERS -->
+        <div class="ll-card">
+          <div class="ll-card-header">
+            <div class="ll-card-title"><i class="fas fa-arrows-rotate" style="color:var(--accent)"></i> My Transfers</div>
+            <a href="/transfer/initiate" class="ll-btn ll-btn-outline ll-btn-sm">New Transfer</a>
+          </div>
+          {% if transfers %}
+          <div>
+            {% for t in transfers %}
+            <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100)">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="fw-700 text-sm">{{ t.property_number }}</div>
+                  <div class="text-xs text-muted mt-4">→ {{ t.buyer_name }}</div>
+                  <div class="ll-hash mt-8" style="font-size:.68rem">{{ t.deed_hash[:28] }}...</div>
+                </div>
+                <div style="text-align:right">
+                  <span class="ll-badge {% if t.status=='approved' %}bd-success{% elif t.status=='pending_buyer' %}bd-warning{% elif t.status=='pending_govt' %}bd-info{% elif t.status=='rejected' %}bd-danger{% else %}bd-gray{% endif %}">
+                    {{ t.status.replace('_',' ').replace('pending ','⏳ ') }}
+                  </span>
+                  <div class="mt-8"><a href="/transfer/{{ t.id }}/detail" class="ll-btn ll-btn-ghost ll-btn-sm" style="font-size:.75rem;padding:4px 10px">Details →</a></div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="ll-empty">
+            <div class="ll-empty-icon">🔄</div>
+            <h4>No transfers yet</h4>
+            <p class="text-sm">Initiate a transfer to get started</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

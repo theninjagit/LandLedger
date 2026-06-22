@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Buyer Dashboard{% endblock %}
+{% block content %}
+<div class="ll-layout">
+  <aside class="ll-sidebar">
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Main</div>
+      <a href="/dashboard" class="ll-sidebar-link active"><span class="si">👤</span> Dashboard</a>
+    </div>
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Security</div>
+      <a href="/certificate" class="ll-sidebar-link"><span class="si">📜</span> My Certificate</a>
+      <a href="/verify" class="ll-sidebar-link"><span class="si">🛡️</span> Verify Deed</a>
+    </div>
+    <div class="ll-sidebar-section">
+      <div class="ll-sidebar-label">Records</div>
+      <a href="/ledger" class="ll-sidebar-link"><span class="si">⛓️</span> Ledger</a>
+    </div>
+  </aside>
+  <main class="ll-main fade-in">
+    <div class="ll-page">
+      <div class="ll-sh mb-24">
+        <div>
+          <div class="ll-sh-title">Buyer Dashboard</div>
+          <div class="ll-sh-sub">Welcome, {{ session.user_name }} 👋</div>
+        </div>
+      </div>
+      <div class="grid-3 mb-24">
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#fef9c3"><span style="font-size:1.4rem">✍️</span></div>
+          <div><div class="ll-stat-num">{{ transfers|selectattr('status','equalto','pending_buyer')|list|length }}</div><div class="ll-stat-label">Need My Signature</div></div>
+        </div>
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#f0fdf4"><span style="font-size:1.4rem">🏠</span></div>
+          <div><div class="ll-stat-num">{{ owned|length }}</div><div class="ll-stat-label">Properties Owned</div></div>
+        </div>
+        <div class="ll-stat">
+          <div class="ll-stat-icon" style="background:#f5f3ff"><span style="font-size:1.4rem">📜</span></div>
+          <div><div class="ll-stat-num" style="font-size:1rem;margin-top:4px">Active</div><div class="ll-stat-label">PKI Certificate</div></div>
+        </div>
+      </div>
+
+      {% set pending = transfers|selectattr('status','equalto','pending_buyer')|list %}
+      {% if pending %}
+      <div class="ll-warn-box mb-20">
+        <i class="fas fa-signature" style="flex-shrink:0;margin-top:2px"></i>
+        <div><b>Action required!</b> You have {{ pending|length }} transfer(s) waiting for your digital signature.</div>
+      </div>
+      <div class="ll-card mb-24">
+        <div class="ll-card-header" style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);color:#fff">
+          <div class="ll-card-title" style="color:#fff"><i class="fas fa-signature"></i> Pending My Signature</div>
+          <span class="ll-badge" style="background:rgba(255,255,255,.25);color:#fff">{{ pending|length }} pending</span>
+        </div>
+        {% for t in pending %}
+        <div style="padding:18px 20px;border-bottom:1px solid var(--gray-100)">
+          <div class="grid-2 gap-16 items-center">
+            <div>
+              <div class="fw-700">{{ t.property_number }}</div>
+              <div class="text-sm text-gray mt-4">{{ t.location }}, {{ t.district }} — {{ t.area_sqft }} sqft</div>
+              <div class="text-sm mt-8">Seller: <b>{{ t.seller_name }}</b></div>
+              <div class="mt-8 flex gap-8">
+                <span class="ll-badge bd-success">✍️ Seller Signed</span>
+                <span class="ll-badge bd-warning">⏳ Awaiting You</span>
+              </div>
+              <div class="ll-hash mt-8" style="font-size:.68rem">{{ t.deed_hash[:32] }}...</div>
+            </div>
+            <div style="text-align:right">
+              <a href="/transfer/{{ t.id }}/detail" class="ll-btn ll-btn-outline ll-btn-sm mb-8">View Details</a><br>
+              <form method="POST" action="/transfer/{{ t.id }}/buyer_sign" onsubmit="return confirm('Sign this deed with your RSA private key?')">
+                <button type="submit" class="ll-btn ll-btn-success">
+                  <i class="fas fa-signature"></i> Sign Deed
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="grid-2 gap-20">
+        <div class="ll-card">
+          <div class="ll-card-header">
+            <div class="ll-card-title"><i class="fas fa-house" style="color:var(--success)"></i> Properties I Own</div>
+            {% if owned %}<a href="/transfer/initiate" class="ll-btn ll-btn-primary ll-btn-sm"><i class="fas fa-arrows-rotate"></i> Transfer</a>{% endif %}
+          </div>
+          {% if owned %}
+          {% for p in owned %}
+          <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100)">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="fw-700 text-sm">{{ p.property_number }}</div>
+                <div class="text-xs text-gray mt-4">{{ p.location }}, {{ p.district }}</div>
+                <div class="text-xs text-muted">{{ p.area_sqft }} sqft</div>
+              </div>
+              <div style="text-align:right">
+                <span class="ll-badge bd-success mb-8">Owned</span>
+                <div class="mt-8">
+                  <a href="/transfer/initiate" class="ll-btn ll-btn-outline ll-btn-sm" style="font-size:.75rem;padding:4px 10px">
+                    <i class="fas fa-arrows-rotate"></i> Re-transfer
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="ll-hash green mt-8">{{ p.property_hash }}</div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="ll-empty"><div class="ll-empty-icon">🏠</div><h4>No properties yet</h4><p class="text-sm">Accept a transfer to own your first property</p></div>
+          {% endif %}
+        </div>
+        <div class="ll-card">
+          <div class="ll-card-header"><div class="ll-card-title"><i class="fas fa-history" style="color:var(--accent)"></i> All Transfers</div></div>
+          {% if transfers %}
+          {% for t in transfers %}
+          <div style="padding:12px 20px;border-bottom:1px solid var(--gray-100)" class="flex justify-between items-center">
+            <div><div class="fw-600 text-sm">{{ t.property_number }}</div><div class="text-xs text-muted">from {{ t.seller_name }}</div></div>
+            <div style="text-align:right">
+              <span class="ll-badge {% if t.status=='approved' %}bd-success{% elif t.status=='pending_buyer' %}bd-warning{% elif t.status=='pending_govt' %}bd-info{% elif t.status=='rejected' %}bd-danger{% else %}bd-gray{% endif %}">{{ t.status.replace('_',' ') }}</span>
+              <div><a href="/transfer/{{ t.id }}/detail" class="ll-btn ll-btn-ghost ll-btn-sm" style="font-size:.72rem;padding:3px 8px">Details →</a></div>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="ll-empty"><div class="ll-empty-icon">📋</div><h4>No transfers</h4></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Audit Logs{% endblock %}
+{% block content %}
+<div class="ll-page" style="padding-top:28px;padding-bottom:28px">
+  <div class="ll-sh mb-24">
+    <div>
+      <div class="ll-sh-title">📋 Transfer Activity Log</div>
+      <div class="ll-sh-sub">Property transfer events — initiated, signed, approved, rejected</div>
+    </div>
+    <a href="/dashboard" class="ll-btn ll-btn-outline ll-btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  </div>
+  <div class="ll-card">
+    <div class="ll-table-wrap">
+      <table class="ll-table">
+        <thead><tr><th>Timestamp</th><th>User</th><th>Role</th><th>Action</th><th>Details</th></tr></thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td class="text-xs text-muted" style="white-space:nowrap">{{ log.timestamp }}</td>
+            <td class="fw-600 text-sm">{{ log.full_name or 'System' }}</td>
+            <td><span class="ll-badge {% if log.role=='seller' %}bd-gold{% elif log.role=='buyer' %}bd-info{% elif log.role=='govt_officer' %}bd-purple{% else %}bd-gray{% endif %}">{{ (log.role or 'system').replace('_',' ') }}</span></td>
+            <td><span class="ll-badge {% if 'APPROVED' in log.action %}bd-success{% elif 'REJECTED' in log.action %}bd-danger{% elif 'LOGIN' in log.action %}bd-info{% elif 'REGISTER' in log.action %}bd-purple{% elif 'SIGNED' in log.action %}bd-gold{% else %}bd-gray{% endif %}">{{ log.action }}</span></td>
+            <td class="text-xs text-muted">{{ log.details or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

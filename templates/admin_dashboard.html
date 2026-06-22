@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% block title %}Admin Panel — LandLedger{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 64px);display:flex">
+
+  <!-- Admin Sidebar -->
+  <aside style="width:220px;flex-shrink:0;background:#0f172a;padding:20px 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto">
+    <div style="padding:0 16px;margin-bottom:20px">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#475569;margin-bottom:12px">Admin Panel</div>
+      <div style="display:flex;align-items:center;gap:8px;background:#1e293b;border-radius:10px;padding:10px 12px">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff">A</div>
+        <div>
+          <div style="font-size:.82rem;font-weight:700;color:#fff">{{ session.user_name }}</div>
+          <div style="font-size:.7rem;color:#64748b">System Admin</div>
+        </div>
+      </div>
+    </div>
+    {% for href,icon,label in [
+      ('#users','fas fa-users','Users'),
+      ('#properties','fas fa-house','Properties'),
+      ('#transfers','fas fa-arrows-rotate','Transfers'),
+      ('#logs','fas fa-clipboard-list','Audit Logs'),
+    ] %}
+    <a href="{{ href }}" style="display:flex;align-items:center;gap:9px;padding:10px 16px;color:#94a3b8;font-size:.86rem;font-weight:500;text-decoration:none;transition:all .2s;margin:2px 8px;border-radius:8px">
+      <i class="{{ icon }}" style="width:16px;text-align:center"></i> {{ label }}
+    </a>
+    {% endfor %}
+    <div style="margin:16px 8px;height:1px;background:#1e293b"></div>
+    <a href="/logout" style="display:flex;align-items:center;gap:9px;padding:10px 16px;color:#ef4444;font-size:.86rem;font-weight:500;text-decoration:none;margin:2px 8px;border-radius:8px">
+      <i class="fas fa-right-from-bracket" style="width:16px;text-align:center"></i> Logout
+    </a>
+  </aside>
+
+  <main style="flex:1;padding:28px;min-width:0">
+
+    <div style="margin-bottom:24px">
+      <div style="font-size:1.4rem;font-weight:800;color:#0f172a">System Administration</div>
+      <div style="font-size:.85rem;color:#64748b;margin-top:2px">Manage users, monitor activity, view all records</div>
+    </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">
+      {% for icon,label,value,color in [
+        ('👥','Total Users',stats.total_users,'#2563eb'),
+        ('🏠','Properties',stats.total_properties,'#059669'),
+        ('🔄','Transfers',stats.total_transfers,'#7c3aed'),
+        ('✅','Approved',stats.approved,'#d97706'),
+      ] %}
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:12px">
+        <div style="width:44px;height:44px;border-radius:10px;background:{{ color }}11;display:flex;align-items:center;justify-content:center;font-size:1.3rem">{{ icon }}</div>
+        <div>
+          <div style="font-size:1.6rem;font-weight:800;color:#0f172a;line-height:1">{{ value }}</div>
+          <div style="font-size:.78rem;color:#64748b;margin-top:2px">{{ label }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Sub stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px">
+      {% for label,value,color in [
+        ('Sellers',stats.total_sellers,'#f59e0b'),
+        ('Buyers',stats.total_buyers,'#3b82f6'),
+        ('Govt Officers',stats.total_officers,'#7c3aed'),
+        ('Pending Govt',stats.pending,'#ef4444'),
+      ] %}
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;text-align:center">
+        <div style="font-size:1.3rem;font-weight:800;color:{{ color }}">{{ value }}</div>
+        <div style="font-size:.75rem;color:#64748b">{{ label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- ── USERS TABLE ── -->
+    <div id="users" style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:24px">
+      <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px"><i class="fas fa-users" style="color:#2563eb"></i> Users</div>
+        <span style="background:#eff6ff;color:#1e40af;border-radius:50px;padding:3px 10px;font-size:.75rem;font-weight:700">{{ users|length }} total</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:#f8fafc">
+              {% for h in ['ID','Name','Email','Role','ID Type','NID/PAN','Cert','Status','Actions'] %}
+              <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1px solid #e2e8f0">{{ h }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr style="border-bottom:1px solid #f1f5f9" {% if not u.is_active %}style="opacity:.55;background:#fafafa"{% endif %}>
+              <td style="padding:11px 14px;font-size:.8rem;color:#94a3b8">{{ u.id }}</td>
+              <td style="padding:11px 14px;font-weight:600;font-size:.87rem">{{ u.full_name }}</td>
+              <td style="padding:11px 14px;font-size:.82rem;color:#64748b">{{ u.email }}</td>
+              <td style="padding:11px 14px">
+                <span style="border-radius:50px;padding:3px 9px;font-size:.72rem;font-weight:700;
+                  {% if u.role=='seller' %}background:#fef3c7;color:#92400e
+                  {% elif u.role=='buyer' %}background:#dbeafe;color:#1e40af
+                  {% else %}background:#f3e8ff;color:#6b21a8{% endif %}">
+                  {{ u.role.replace('_',' ') }}
+                </span>
+              </td>
+              <td style="padding:11px 14px;font-size:.8rem;color:#64748b;text-transform:uppercase">{{ u.id_type or 'nid' }}</td>
+              <td style="padding:11px 14px;font-family:monospace;font-size:.75rem;color:#2563eb">
+                {% if u.nid_number %}{{ u.nid_number[:4] }}****{% else %}—{% endif %}
+              </td>
+              <td style="padding:11px 14px">
+                {% if u.cert_pem %}
+                <span style="background:#dcfce7;color:#166534;border-radius:50px;padding:3px 8px;font-size:.7rem;font-weight:700">✓ Issued</span>
+                {% else %}
+                <span style="background:#fee2e2;color:#991b1b;border-radius:50px;padding:3px 8px;font-size:.7rem;font-weight:700">✗ None</span>
+                {% endif %}
+              </td>
+              <td style="padding:11px 14px">
+                {% if u.is_active %}
+                <span style="background:#dcfce7;color:#166534;border-radius:50px;padding:3px 8px;font-size:.7rem;font-weight:700">Active</span>
+                {% else %}
+                <span style="background:#fee2e2;color:#991b1b;border-radius:50px;padding:3px 8px;font-size:.7rem;font-weight:700">Inactive</span>
+                {% endif %}
+              </td>
+              <td style="padding:11px 14px">
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  {% if u.is_active %}
+                  <form method="POST" action="/admin/user/{{ u.id }}/deactivate" onsubmit="return confirm('Deactivate {{ u.full_name }}?')">
+                    <button type="submit" style="background:#fef3c7;color:#92400e;border:none;padding:5px 10px;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer">Deactivate</button>
+                  </form>
+                  {% else %}
+                  <form method="POST" action="/admin/user/{{ u.id }}/activate">
+                    <button type="submit" style="background:#dcfce7;color:#166534;border:none;padding:5px 10px;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer">Activate</button>
+                  </form>
+                  {% endif %}
+                  <form method="POST" action="/admin/user/{{ u.id }}/delete" onsubmit="return confirm('PERMANENTLY delete {{ u.full_name }}? This cannot be undone.')">
+                    <button type="submit" style="background:#fee2e2;color:#991b1b;border:none;padding:5px 10px;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── PROPERTIES TABLE ── -->
+    <div id="properties" style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:24px">
+      <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9">
+        <div style="font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px"><i class="fas fa-house" style="color:#059669"></i> All Properties</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#f8fafc">
+            {% for h in ['Prop #','Location','District','Area','Owner','Status','Hash'] %}
+            <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1px solid #e2e8f0">{{ h }}</th>
+            {% endfor %}
+          </tr></thead>
+          <tbody>
+            {% for p in properties %}
+            <tr style="border-bottom:1px solid #f1f5f9">
+              <td style="padding:11px 14px;font-weight:700;font-size:.87rem">{{ p.property_number }}</td>
+              <td style="padding:11px 14px;font-size:.82rem">{{ p.location }}</td>
+              <td style="padding:11px 14px;font-size:.82rem">{{ p.district }}</td>
+              <td style="padding:11px 14px;font-size:.82rem">{{ p.area_sqft }} sqft</td>
+              <td style="padding:11px 14px;font-size:.82rem;font-weight:600">{{ p.owner_name }}</td>
+              <td style="padding:11px 14px">
+                <span style="border-radius:50px;padding:3px 9px;font-size:.72rem;font-weight:700;
+                  {% if p.status=='active' %}background:#dcfce7;color:#166534
+                  {% elif p.status=='in_transfer' %}background:#fef9c3;color:#854d0e
+                  {% else %}background:#f1f5f9;color:#475569{% endif %}">
+                  {{ p.status }}
+                </span>
+              </td>
+              <td style="padding:11px 14px;font-family:monospace;font-size:.7rem;color:#7c3aed">{{ p.property_hash[:18] }}...</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── RECENT TRANSFERS ── -->
+    <div id="transfers" style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:24px">
+      <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9">
+        <div style="font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px"><i class="fas fa-arrows-rotate" style="color:#7c3aed"></i> Recent Transfers</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#f8fafc">
+            {% for h in ['#','Property','Seller','Buyer','Status','Date'] %}
+            <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1px solid #e2e8f0">{{ h }}</th>
+            {% endfor %}
+          </tr></thead>
+          <tbody>
+            {% for t in transfers %}
+            <tr style="border-bottom:1px solid #f1f5f9">
+              <td style="padding:11px 14px;font-size:.8rem;color:#94a3b8">{{ t.id }}</td>
+              <td style="padding:11px 14px;font-weight:600;font-size:.87rem">{{ t.property_number }}</td>
+              <td style="padding:11px 14px;font-size:.82rem">{{ t.seller_name }}</td>
+              <td style="padding:11px 14px;font-size:.82rem">{{ t.buyer_name }}</td>
+              <td style="padding:11px 14px">
+                <span style="border-radius:50px;padding:3px 9px;font-size:.72rem;font-weight:700;
+                  {% if t.status=='approved' %}background:#dcfce7;color:#166534
+                  {% elif t.status=='rejected' %}background:#fee2e2;color:#991b1b
+                  {% elif t.status=='pending_govt' %}background:#f3e8ff;color:#6b21a8
+                  {% elif t.status=='pending_buyer' %}background:#fef9c3;color:#854d0e
+                  {% else %}background:#f1f5f9;color:#475569{% endif %}">
+                  {{ t.status.replace('_',' ') }}
+                </span>
+              </td>
+              <td style="padding:11px 14px;font-size:.78rem;color:#94a3b8">{{ t.created_at[:10] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── AUDIT LOGS ── -->
+    <div id="logs" style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9">
+        <div style="font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px"><i class="fas fa-clipboard-list" style="color:#d97706"></i> Audit Logs (last 50)</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#f8fafc">
+            {% for h in ['Time','User','Role','Action','Details'] %}
+            <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1px solid #e2e8f0">{{ h }}</th>
+            {% endfor %}
+          </tr></thead>
+          <tbody>
+            {% for log in logs %}
+            <tr style="border-bottom:1px solid #f1f5f9">
+              <td style="padding:10px 14px;font-size:.75rem;color:#94a3b8;white-space:nowrap">{{ log.timestamp[:16] }}</td>
+              <td style="padding:10px 14px;font-weight:600;font-size:.82rem">{{ log.full_name or 'System' }}</td>
+              <td style="padding:10px 14px">
+                <span style="border-radius:50px;padding:2px 8px;font-size:.7rem;font-weight:700;background:#f1f5f9;color:#475569">
+                  {{ (log.role or 'system').replace('_',' ') }}
+                </span>
+              </td>
+              <td style="padding:10px 14px">
+                <span style="border-radius:50px;padding:2px 8px;font-size:.7rem;font-weight:700;
+                  {% if 'APPROVED' in log.action %}background:#dcfce7;color:#166534
+                  {% elif 'REJECTED' in log.action or 'DELETED' in log.action %}background:#fee2e2;color:#991b1b
+                  {% elif 'LOGIN' in log.action %}background:#dbeafe;color:#1e40af
+                  {% elif 'REGISTER' in log.action %}background:#f3e8ff;color:#6b21a8
+                  {% elif 'DEACTIVATED' in log.action %}background:#fef9c3;color:#854d0e
+                  {% else %}background:#f1f5f9;color:#475569{% endif %}">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td style="padding:10px 14px;font-size:.75rem;color:#64748b">{{ log.details or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

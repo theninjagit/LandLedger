@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Verify Deed{% endblock %}
+{% block content %}
+<div class="ll-page-md" style="padding-top:28px;padding-bottom:28px">
+  <div class="ll-sh mb-24">
+    <div>
+      <div class="ll-sh-title">🛡️ Verify Property Deed</div>
+      <div class="ll-sh-sub">Cryptographically verify signatures, certificates, and ledger inclusion</div>
+    </div>
+  </div>
+
+  <div class="ll-card mb-20">
+    <div class="ll-card-body">
+      <form method="POST">
+        <label class="ll-label">Deed Hash (SHA-256) — 64 characters</label>
+        <div class="flex gap-8">
+          <div class="ll-input-group flex-1">
+            <i class="fas fa-hashtag ll-input-icon"></i>
+            <input type="text" name="deed_hash" class="ll-input" style="font-family:'JetBrains Mono',monospace;font-size:.85rem"
+                   placeholder="Enter 64-character SHA-256 deed hash..." maxlength="64" minlength="64"
+                   value="{{ request.form.get('deed_hash','') }}" required>
+          </div>
+          <button type="submit" class="ll-btn ll-btn-primary"><i class="fas fa-magnifying-glass"></i> Verify</button>
+        </div>
+        <div class="ll-input-hint">Find the deed hash in any transfer's detail page or from the ledger above</div>
+      </form>
+    </div>
+  </div>
+
+  {% if result %}
+  {% if not result.found %}
+  <div class="ll-card">
+    <div class="ll-card-body text-center" style="padding:40px">
+      <div style="font-size:3rem;margin-bottom:12px">❌</div>
+      <div class="fw-700">No transfer found</div>
+      <div class="text-sm text-muted mt-8">No deed with this hash exists in the system.</div>
+    </div>
+  </div>
+  {% else %}
+  <div class="ll-card fade-in">
+    <div class="ll-card-header" style="background:linear-gradient(135deg,#0f2942,#1d4ed8);color:#fff">
+      <div class="ll-card-title" style="color:#fff"><i class="fas fa-file-contract"></i> Verification Result — {{ result.property_number }}</div>
+      <span class="ll-badge" style="{% if result.status=='approved' %}background:#dcfce7;color:#166534{% else %}background:rgba(255,255,255,.2);color:#fff{% endif %}">
+        {{ result.status.replace('_',' ').title() }}
+      </span>
+    </div>
+    <div class="ll-card-body">
+      <div class="grid-2 gap-16 mb-20">
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:14px">
+          <div class="text-xs fw-700 text-muted mb-8">PROPERTY INFO</div>
+          <div class="fw-700">{{ result.property_number }}</div>
+          <div class="text-sm text-gray">{{ result.location }}, {{ result.district }}</div>
+          <div class="text-sm text-gray">{{ result.area_sqft }} sqft</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:14px">
+          <div class="text-xs fw-700 text-muted mb-8">TRANSFER PARTIES</div>
+          <div class="text-sm"><i class="fas fa-arrow-right-from-bracket" style="color:var(--danger)"></i> <b>Seller:</b> {{ result.seller_name }}</div>
+          <div class="text-sm mt-4"><i class="fas fa-arrow-right-to-bracket" style="color:var(--success)"></i> <b>Buyer:</b> {{ result.buyer_name }}</div>
+        </div>
+      </div>
+
+      <div class="text-xs fw-700 text-muted mb-12" style="text-transform:uppercase;letter-spacing:.6px">Cryptographic Verification Checks</div>
+      {% set checks = [
+        ('Seller X.509 Certificate', result.seller_cert_valid, result.seller_cert_msg, 'fas fa-certificate'),
+        ('Buyer X.509 Certificate',  result.buyer_cert_valid,  result.buyer_cert_msg,  'fas fa-certificate'),
+        ('Seller RSA Digital Signature', result.seller_sig_valid, 'RSA-2048 signature verified against deed hash', 'fas fa-signature'),
+        ('Buyer RSA Digital Signature',  result.buyer_sig_valid,  'RSA-2048 signature verified against deed hash', 'fas fa-signature'),
+      ] %}
+      {% for label,ok,msg,icon in checks %}
+      <div class="ll-check-row {% if ok %}pass{% else %}fail{% endif %}">
+        <span style="font-size:1.2rem">{% if ok %}✅{% else %}❌{% endif %}</span>
+        <i class="{{ icon }}" style="color:{% if ok %}var(--success){% else %}var(--danger){% endif %}"></i>
+        <div>
+          <div class="fw-600 text-sm">{{ label }}</div>
+          <div class="text-xs text-muted">{{ msg }}</div>
+        </div>
+      </div>
+      {% endfor %}
+      <div class="ll-check-row {% if result.on_ledger %}pass{% else %}fail{% endif %}">
+        <span style="font-size:1.2rem">{% if result.on_ledger %}✅{% else %}❌{% endif %}</span>
+        <i class="fas fa-cubes" style="color:{% if result.on_ledger %}var(--success){% else %}var(--danger){% endif %}"></i>
+        <div class="flex-1">
+          <div class="fw-600 text-sm">Recorded on Immutable Ledger</div>
+          {% if result.on_ledger %}
+          <div class="text-xs text-muted">Block #{{ result.block_index }} | Hash: <code>{{ result.block_hash[:28] }}...</code></div>
+          {% else %}
+          <div class="text-xs text-muted">Transfer not yet approved and recorded on ledger</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mt-16">
+        <div class="text-xs fw-700 text-muted mb-6">DEED HASH (SHA-256)</div>
+        <div class="ll-hash" style="display:block">{{ result.deed_hash }}</div>
+      </div>
+
+      {% set all_ok = result.seller_cert_valid and result.buyer_cert_valid and result.seller_sig_valid and result.buyer_sig_valid and result.on_ledger %}
+      <div class="mt-16 text-center" style="padding:16px;border-radius:var(--radius);{% if all_ok %}background:#ecfdf5;border:2px solid #a7f3d0{% else %}background:#fffbeb;border:2px solid #fde68a{% endif %}">
+        <div class="fw-800" style="font-size:1rem;{% if all_ok %}color:var(--success){% else %}color:var(--warning){% endif %}">
+          {% if all_ok %}✅ ALL CHECKS PASSED — DEED IS AUTHENTIC{% else %}⚠️ SOME CHECKS FAILED{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

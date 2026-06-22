@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}LandLedger{% endblock %} — PKI Land Registry</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="ll-nav">
+  <a href="/" class="ll-brand">
+    <div class="ll-brand-icon">🏛️</div>
+    Land<span class="ll-brand-gold">Ledger</span>
+  </a>
+  <div class="ll-nav-links">
+    <a href="/ledger" class="ll-nav-link {% if request.path=='/ledger' %}active{% endif %}">
+      <i class="fas fa-cubes"></i> Ledger
+    </a>
+    <a href="/verify" class="ll-nav-link {% if request.path=='/verify' %}active{% endif %}">
+      <i class="fas fa-shield-halved"></i> Verify Deed
+    </a>
+    {% if session.user_role == 'govt_officer' %}
+    <a href="/audit" class="ll-nav-link {% if request.path=='/audit' %}active{% endif %}">
+      <i class="fas fa-clipboard-list"></i> Audit Logs
+    </a>
+    {% endif %}
+  </div>
+  <div class="ll-nav-right">
+    {% if session.user_id %}
+    <a href="/certificate" class="ll-nav-link">
+      <i class="fas fa-certificate"></i> My Cert
+    </a>
+    <a href="/dashboard" class="ll-user-pill">
+      <div class="ll-avatar {% if session.user_role=='seller' %}av-seller{% elif session.user_role=='buyer' %}av-buyer{% else %}av-govt{% endif %}">
+        {{ session.user_name[0].upper() }}
+      </div>
+      <span style="font-size:.84rem;font-weight:600">{{ session.user_name.split()[0] }}</span>
+      <span style="font-size:.68rem;opacity:.7;text-transform:uppercase;letter-spacing:.5px">
+        {{ session.user_role.replace('_',' ') }}
+      </span>
+    </a>
+    <a href="/logout" class="ll-btn-nav">
+      <i class="fas fa-right-from-bracket"></i>
+    </a>
+    {% else %}
+    <a href="/login" class="ll-btn-nav"><i class="fas fa-sign-in-alt"></i> Login</a>
+    <a href="/register" class="ll-btn-nav" style="background:rgba(245,158,11,.25);border-color:rgba(245,158,11,.5);">
+      <i class="fas fa-user-plus"></i> Register
+    </a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="ll-alerts">
+  {% for cat, msg in messages %}
+  <div class="ll-alert {{ cat }}">
+    <i class="fas fa-{% if cat=='success' %}circle-check{% elif cat=='danger' %}circle-xmark{% elif cat=='warning' %}triangle-exclamation{% else %}circle-info{% endif %}"></i>
+    <span>{{ msg }}</span>
+    <button class="ll-alert-close" onclick="this.parentElement.remove()">✕</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<script src="/static/js/main.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
