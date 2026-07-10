@@ -7,8 +7,6 @@
 
 <img src="images/banner.png" width="100%" alt="LandLedger Banner">
 
-# LandLedger
-
 ### PKI-Based Land Ownership Transfer System
 
 A secure web application that uses **Public Key Infrastructure (PKI)** to make land ownership transfers verifiable, tamper-proof, and digitally signed.
