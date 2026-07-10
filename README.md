@@ -1,8 +1,6 @@
 
 ---
 
-## Quick Start
-
 <div align="center">
 
 <img src="images/banner.png" width="100%" alt="LandLedger Banner">
@@ -67,7 +65,7 @@ A secure web application that uses **Public Key Infrastructure (PKI)** to make l
   <img src="https://img.shields.io/badge/Hash_Chain-Ledger-green?style=for-the-badge">
   <img src="https://img.shields.io/badge/Tamper-Detection-red?style=for-the-badge">
   <img src="https://img.shields.io/badge/Audit-Logging-orange?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Certificate-Revocation-purple?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Certificate_Chain-Validation-purple?style=for-the-badge">
 </p>
 
 ---
